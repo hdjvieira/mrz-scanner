@@ -27,35 +27,53 @@ module.exports = {
   parse: parse
 };
 
-function parse(mrz, modified) {
-  var _mrz = mrz.slice(0);
-  var result = _parse(_mrz);
-  var retry;
+var _mrz;
+var result;
 
+function _relax(_r) {
+  let _retry = false;
   result.details.forEach(function (d) {
-    if (!d.valid) {
-      if (d.label.search(/date|digit|number/) >= 0) {
+    // relax only if detail is invalid or within range
+    if (!d.valid || (_r && d.line == _r.line && d.start >= _r.start && d.end <= _r.end)) {
+      if (d.label.search(/date|digit|number/i) >= 0) {
         let v0 = _mrz[d.line].substr(d.start, d.end - d.start);
         let v = v0.replace(/O/gi, '0');
         v = v.replace(/l|I/g, '1');
         v = v.replace(/S/gi, '5');
         v = v.replace(/g/, '9');
+        v = v.replace(/B/, '8');
         if (v != v0) {
           _mrz[d.line] = _mrz[d.line].substr(0, d.start) + v + _mrz[d.line].substr(d.end);
-          retry = true;
+          _retry = true;
         }
-      } else if (d.label.search(/name|state|Nation/) >= 0) {
+        // relax ranges for check digits
+        if (!_r && d.label.search(/digit/i) >= 0) {
+          d.ranges.forEach(function (r) {
+            if (!(r.line == d.line && r.start == d.start && r.end == d.end)) {
+              _retry = _relax(r) ? true : _retry;
+            }
+          });
+        }
+      } else if (d.label.search(/name|state|Nation/i) >= 0) {
         let v0 = _mrz[d.line].substr(d.start, d.end - d.start);
         let v = v0.replace(/0/g, 'O');
         v = v.replace(/1/g, 'I');
         v = v.replace(/5/g, 'S');
+        v = v.replace(/8/g, 'B');
         if (v != v0) {
           _mrz[d.line] = _mrz[d.line].substr(0, d.start) + v + _mrz[d.line].substr(d.end);
-          retry = true;
+          _retry = true;
         }
       }
     }
   });
+  return _retry;
+}
+
+function parse(mrz, modified) {
+  _mrz = mrz.slice(0);
+  result = _parse(_mrz);
+  var retry = _relax();
 
   if (retry) {
     return parse(_mrz, true);
