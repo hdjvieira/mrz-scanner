@@ -150,7 +150,7 @@ function showResult(result) {
         info = [
           info,
           '',
-          JSON.parse(details, false, 4),
+          JSON.stringify(details, false, 4),
         ].join('\n');
       }
       html = [
