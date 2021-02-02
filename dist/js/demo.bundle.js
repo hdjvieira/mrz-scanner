@@ -10730,7 +10730,7 @@ function showResult(result) {
             details.push(d);
           }
         });
-        info = [info, '', JSON.parse(details, false, 4)].join('\n');
+        info = [info, '', JSON.stringify(details, false, 4)].join('\n');
       }
       html = ['<pre>', 'Could not parse ocrized text:', '<pre>', '</pre>', escape(info), '</pre>'];
     }

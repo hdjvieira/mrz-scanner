@@ -60,7 +60,7 @@
     "extend": "^3.0.1",
     "fs-extra": "^7.0.1",
     "jquery": "^3.4.1",
-    "mrz-detection": "git+https://github.com/hdjvieira/mrz-detection.git#50c8cf246f77ffe87ef7221f06c1a13455fc23b5",
+    "mrz-detection": "git+https://github.com/hdjvieira/mrz-detection.git#83d0de18d12a1ca673f52dcd6d66c0e352d5817d",
     "natives": "^1.1.6",
     "q": "^1.5.1"
   }
